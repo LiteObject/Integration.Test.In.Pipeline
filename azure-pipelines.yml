@@ -1,0 +1,87 @@
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+# Stages -> Jobs (can be parallel) -> Steps (each step runs in it's own process)
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+stages:
+- stage: build
+  displayName: 'Build, Test, Prepare'
+  jobs:
+    - job: build
+      displayName: 'Build job'
+      steps:
+      - script: pwd
+        displayName: 'What directory are we in?'
+
+      - script: ls -la
+        displayName: 'What files are in this folder?'
+        
+      - script: docker version
+        displayName: 'Check docker version'
+    
+      - task: UseDotNet@2
+        displayName: 'Install .NET 7 SDK'
+        inputs:
+          version: '7.x'
+          performMultiLevelLookup: true
+          includePreviewVersions: false          
+
+      - task: DotNetCoreCLI@2
+        displayName: 'Run dotnet build'
+        inputs:
+          command: build
+          projects: '**/*.csproj'
+          arguments: '--configuration $(buildConfiguration)'
+
+      - script: docker run --name mymssqlserver -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=myPa55w0rd' -p 1433:1433 -e 'MSSQL_PID=Standard' -d mcr.microsoft.com/mssql/server:2019-latest
+        displayName: 'Start MSSQL Server Container'
+
+      - task: DotNetCoreCLI@2
+        displayName: 'Run dotnet test'
+        inputs:
+          command: 'test'
+          projects: '**/*Test/*.csproj'
+          arguments: '--configuration $(buildConfiguration) --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura'
+          #arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
+          publishTestResults: true
+          testRunTitle: '---Run Unit Test---'
+          
+      - task: PublishCodeCoverageResults@1
+        displayName: 'Publish code coverage report'
+        inputs:
+          codeCoverageTool: 'Cobertura'
+          summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+
+      # - script: dotnet publish -o $(build.artifactStagingDirectory) # Defined by ADO as default artifact folder
+      #   displayName: 'dotnet publish -o $(build.artifactStagingDirectory)'
+      #   workingDirectory: '$(projectFolder)' 
+
+      - task: DotNetCoreCLI@2
+        displayName: 'Run dotnet publish'
+        inputs:
+          command: publish
+          publishWebProjects: True
+          arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+          zipAfterPublish: True
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish Pipeline Artifact'
+        inputs:
+          #targetPath: '$(Pipeline.Workspace)'
+          targetPath: $(Build.ArtifactStagingDirectory)          
+          artifact: 'drop'
+          publishLocation: 'pipeline'
+
+
