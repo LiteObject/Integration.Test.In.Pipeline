@@ -25,13 +25,13 @@ namespace Demo.Product.Api.Controllers
             return Ok(products);
         }
 
-        [HttpGet("cities")]
-        public async Task<IActionResult> GetCities()
+        [HttpGet("products")]
+        public async Task<IActionResult> GetProductsAsync()
         {
-            _logger.LogInformation($">>> Invoked {nameof(GetCities)}");
+            _logger.LogInformation($">>> Invoked {nameof(GetProductsAsync)}");
 
-            Domain.Product[] cities = await _context.Products.ToArrayAsync();
-            return Ok(cities);
+            Domain.Product[] products = await _context.Products.ToArrayAsync();
+            return Ok(products);
         }
     }
 }

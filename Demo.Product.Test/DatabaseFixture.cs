@@ -34,10 +34,10 @@ namespace Demo.Product.Test
             _ = Context.Database.EnsureCreated();
 
             Context.Products.AddRange(
-                    new Api.Domain.Product { Name = "Dallas" },
-                    new Api.Domain.Product { Name = "Frisco" },
-                    new Api.Domain.Product { Name = "Addison" },
-                    new Api.Domain.Product { Name = "Fargo" });
+                    new Api.Domain.Product { Name = "Mango" },
+                    new Api.Domain.Product { Name = "Orange" },
+                    new Api.Domain.Product { Name = "Apple" },
+                    new Api.Domain.Product { Name = "Avocado" });
 
             _ = Context.SaveChanges();
         }

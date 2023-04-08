@@ -36,7 +36,7 @@ namespace Demo.Product.Api
             appDbContext.Products.AddRange(
                 new Domain.Product { Name = "Apple" },
                  new Domain.Product { Name = "Orange" },
-                 new Domain.Product { Name = "Banana" },
+                 new Domain.Product { Name = "Mango" },
                  new Domain.Product { Name = "Avocado" }
                 );
             _ = appDbContext.SaveChanges();

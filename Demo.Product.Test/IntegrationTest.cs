@@ -45,44 +45,23 @@ namespace Demo.Product.Test
             Assert.True(products.Any());
         }
 
-        [Fact]
-        public async Task Get_Cities_Should_Returns200OK()
-        {
-            _output.WriteLine($">>> Executing test: {nameof(Get_Cities_Should_Returns200OK)}");
-
-            // ARRANGE
-            HttpClient client = _factory.CreateClient();
-
-            // ACT
-            HttpResponseMessage response = await client.GetAsync("/WeatherForecast/cities");
-            string responseBody = await response.Content.ReadAsStringAsync();
-            List<Api.Domain.Product>? cities = System.Text.Json.JsonSerializer.Deserialize<List<Api.Domain.Product>>(responseBody,
-                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            // ASSERT
-            _ = response.EnsureSuccessStatusCode(); // Status Code 200-299
-            Assert.NotNull(cities);
-            Assert.NotEmpty(cities);
-            Assert.True(cities.Any());
-        }
-
         [Theory]
-        [InlineData("Frisco")]
-        [InlineData("Dallas")]
-        [InlineData("Fargo")]
-        public async Task Database_Should_Have_Cities(string cityName)
+        [InlineData("Mango")]
+        [InlineData("Orange")]
+        [InlineData("Apple")]
+        public async Task Database_Should_Have_Products(string productName)
         {
-            _output.WriteLine($">>> Executing test: {nameof(Database_Should_Have_Cities)}");
+            _output.WriteLine($">>> Executing test: {nameof(Database_Should_Have_Products)}");
 
             // ARRANGE
 
             // ACT
-            List<Api.Domain.Product> cities = await this.fixture.Context.Products.ToListAsync();
+            List<Api.Domain.Product> products = await this.fixture.Context.Products.ToListAsync();
 
             // ASSERT
-            Assert.NotEmpty(cities);
-            Assert.True(cities.Any());
-            Assert.Contains(cities, c => c.Name == cityName);
+            Assert.NotEmpty(products);
+            Assert.True(products.Any());
+            Assert.Contains(products, c => c.Name == productName);
         }
     }
 }
