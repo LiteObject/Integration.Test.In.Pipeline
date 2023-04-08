@@ -1,1 +1,1 @@
-# Demo.Weather.Api
+# Demo of integration test in Azure pipeline using docker container
