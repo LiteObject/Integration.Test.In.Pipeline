@@ -54,7 +54,7 @@ namespace Demo.Product.Test
             HttpClient client = _factory.CreateClient();
 
             // ACT
-            HttpResponseMessage response = await client.GetAsync("/products");
+            HttpResponseMessage response = await client.GetAsync("/products/1");
             Stream responseBody = await response.Content.ReadAsStreamAsync();
             Api.Domain.Product? product = await System.Text.Json.JsonSerializer.DeserializeAsync<Api.Domain.Product>(responseBody);
 
