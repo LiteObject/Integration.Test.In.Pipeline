@@ -29,9 +29,7 @@ namespace Demo.Product.Api.Controllers
         public async Task<IActionResult> GetAsync(int id)
         {
             _logger.LogInformation($">>> Invoked {nameof(GetAsync)}");
-
             Domain.Product? product = await _context.Products.FindAsync(id);
-
             return product is null ? NotFound() : Ok(product);
         }
     }
