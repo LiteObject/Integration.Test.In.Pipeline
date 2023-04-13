@@ -45,6 +45,24 @@ namespace Demo.Product.Test
             Assert.True(products.Any());
         }
 
+        [Fact]
+        public async Task Get_Product_By_Id_Should_Returns200OK()
+        {
+            _output.WriteLine($">>> Executing test: {nameof(Get_Product_By_Id_Should_Returns200OK)}");
+
+            // ARRANGE
+            HttpClient client = _factory.CreateClient();
+
+            // ACT
+            HttpResponseMessage response = await client.GetAsync("/products");
+            Stream responseBody = await response.Content.ReadAsStreamAsync();
+            Api.Domain.Product? product = await System.Text.Json.JsonSerializer.DeserializeAsync<Api.Domain.Product>(responseBody);
+
+            // ASSERT
+            _ = response.EnsureSuccessStatusCode(); // Status Code 200-299
+            Assert.NotNull(product);
+        }
+
         [Theory]
         [InlineData("Mango")]
         [InlineData("Orange")]

@@ -18,20 +18,21 @@ namespace Demo.Product.Api.Controllers
         }
 
         [HttpGet(Name = "GetProducts")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAsync()
         {
-            _logger.LogInformation($">>> Invoked {nameof(Get)}");
+            _logger.LogInformation($">>> Invoked {nameof(GetAsync)}");
             Domain.Product[] products = await _context.Products.ToArrayAsync();
             return Ok(products);
         }
 
-        [HttpGet("products")]
-        public async Task<IActionResult> GetProductsAsync()
+        [HttpGet("{id}", Name = "GetProductById")]
+        public async Task<IActionResult> GetAsync(int id)
         {
-            _logger.LogInformation($">>> Invoked {nameof(GetProductsAsync)}");
+            _logger.LogInformation($">>> Invoked {nameof(GetAsync)}");
 
-            Domain.Product[] products = await _context.Products.ToArrayAsync();
-            return Ok(products);
+            Domain.Product? product = await _context.Products.FindAsync(id);
+
+            return product is null ? NotFound() : Ok(product);
         }
     }
 }
