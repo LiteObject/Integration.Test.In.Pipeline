@@ -1,4 +1,5 @@
 using Demo.Product.Api.Data;
+using Demo.Product.Api.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Demo.Product.Api
@@ -11,6 +12,7 @@ namespace Demo.Product.Api
 
             // Add services to the container.
 
+            _ = builder.Services.AddAutoMapper(typeof(Program));
             _ = builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             _ = builder.Services.AddEndpointsApiExplorer();
@@ -25,6 +27,10 @@ namespace Demo.Product.Api
                     .EnableSensitiveDataLogging();
             });
 
+            AuthSetup.Init(builder.Services);
+
+            _ = builder.Services.AddScoped<IOrderService, OrderService>();
+
             WebApplication app = builder.Build();
 
             using IServiceScope serviceScope = app.Services.CreateScope();
@@ -33,25 +39,29 @@ namespace Demo.Product.Api
             // _ = appDbContext.Database.EnsureDeleted();
             _ = appDbContext.Database.EnsureCreated();
 
-            appDbContext.Products.AddRange(
-                new Domain.Product { Name = "Apple" },
-                 new Domain.Product { Name = "Orange" },
-                 new Domain.Product { Name = "Mango" },
-                 new Domain.Product { Name = "Avocado" }
-                );
-            _ = appDbContext.SaveChanges();
+            // Seed if the table is empty
+            if (!appDbContext.Products.Any())
+            {
+                appDbContext.Products.AddRange(
+                    new Domain.Product("Apple", 1.1m),
+                    new Domain.Product("Orange", 2.2m),
+                    new Domain.Product("Mango", 3.3m),
+                    new Domain.Product("Avocado", 4.4m));
+
+                _ = appDbContext.SaveChanges();
+            }
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 _ = app.UseSwagger();
                 _ = app.UseSwaggerUI();
+                _ = app.MapFallback(() => Results.Redirect("/swagger"));
             }
 
             _ = app.UseHttpsRedirection();
 
             _ = app.UseAuthorization();
-
 
             _ = app.MapControllers();
 
